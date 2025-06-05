@@ -3,15 +3,6 @@
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 echo $DIR
 
-# Configuring yaml files
-if [ -f multipass.yaml ]; then
-    rm multipass.yaml
-fi
-touch multipass.yaml
-echo "# multipass.yaml" >> multipass.yaml
-echo "ssh_authorized_keys:" >> multipass.yaml
-echo "  - $(cat ~/.ssh/id_rsa.pub)" >> multipass.yaml
-
 # Define the directory path
 data_dir="volumes/data"
 # Check if the directory exists
@@ -21,89 +12,9 @@ if [ -d "$data_dir" ]; then
     rm -rf "$data_dir"
 fi
 mkdir -p "$data_dir"
-if [ -f minio.yaml ]; then
-    rm minio.yaml
-fi
-echo "apiVersion: v1
-kind: Namespace
-metadata:
-  name: stores
-  labels:
-    name: stores
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: minio
-  namespace: stores
-spec:
-  selector:
-    matchLabels:
-      app: minio
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: minio
-    spec:
-      containers:
-      - name: minio
-        image: quay.io/minio/minio:latest
-        command:
-        - /bin/bash
-        - -c
-        args:
-        - minio server /data --console-address :9090
-        ports:
-        - containerPort: 9000
-        volumeMounts:
-        - mountPath: /data
-          name: localvolume
-      nodeSelector:
-        kubernetes.io/hostname: pronghorn" >> minio.yaml
-data_dir="$DIR/volumes/data"
-echo "      volumes:
-        - name: localvolume
-          hostPath:
-            path: $(echo $data_dir)
-            type: DirectoryOrCreate" >> minio.yaml
-
-
-# Default configuration
-nodes=3
-cpus=2
-memory="8G"
-disk_size="50G"
-
-# Bootstrap The Nodes
-for node in $(seq 1 $nodes)
-do
-  if [ $node -eq 1 ];
-  then
-    echo "Deploying the master node"
-    multipass launch --cpus $cpus --memory $memory --disk $disk_size --name pronghorn 20.04 --cloud-init multipass.yaml
-    echo "Master node deployed"
-  else
-    echo Launching the worker nodes
-    multipass launch --cpus $cpus --memory $memory --disk $disk_size --name "pronghorn-m0$node" 20.04 --cloud-init multipass.yaml   
-    echo "Worker node $node deployed"
-  fi
-done
-
-# Deploy Kubernetes Cluster
-k3sup install --ip $(multipass info pronghorn | grep IPv4 | awk '{print $2}') --user ubuntu --k3s-extra-args '--cluster-init'
-for node in $(seq 2 $nodes)
-do
-    k3sup join --ip $(multipass info pronghorn-m0$node | grep IPv4 | awk '{print $2}') --server-ip $(multipass info pronghorn | grep IPv4 | awk '{print $2}') --user ubuntu
-done
-
-echo "[Completed] Kuberentes cluster created with $nodes nodes, $cpus CPUs, $memory MB memory and $disk_size disk size."
-
-# Set correct contexts
-export KUBECONFIG="$DIR/kubeconfig"
 
 # Install OpenFaaS
-arkade install openfaas --set faasnetes.image=skharban/faas-netes:privileged-containers &> /dev/null
+arkade install openfaas --set faasnetes.image=zihuanxue/faas-netes:privileged-containers &> /dev/null
 if kubectl get namespace openfaas &> /dev/null; then
     echo "[Completed] OpenFaaS Installed."
 else

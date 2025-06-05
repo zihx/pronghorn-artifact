@@ -49,7 +49,7 @@ RUN chmod +x warmup.sh
 RUN apk --no-cache add musl-dev linux-headers g++ openblas-dev
 RUN apk --no-cache add curl python3-dev
 RUN apk --no-cache add iptables
-RUN pip3 install requests minio numpy
+RUN pip3 install requests minio==5.0.0 numpy
 
 ENV upstream_url="http://127.0.0.1:8080"
 ENV mode="http"

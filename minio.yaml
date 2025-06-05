@@ -34,9 +34,9 @@ spec:
         - mountPath: /data
           name: localvolume
       nodeSelector:
-        kubernetes.io/hostname: pronghorn
+        kubernetes.io/hostname: master
       volumes:
         - name: localvolume
           hostPath:
-            path: /home/shreyas/pronghorn-artifact/volumes/data
+            path: /home/zihuanxue/pronghorn-artifact/volumes/data
             type: DirectoryOrCreate
