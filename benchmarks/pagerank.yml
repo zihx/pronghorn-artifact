@@ -6,4 +6,4 @@ functions:
   pagerank:
     lang: criu-pypy
     handler: ./python/pagerank
-    image: pronghornae/pagerank:latest
+    image: zihuanxue/pagerank:latest

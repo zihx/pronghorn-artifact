@@ -6,4 +6,4 @@ functions:
   html-rendering:
     lang: criu-java-8
     handler: ./java/html-rendering
-    image: pronghornae/html-rendering:latest
+    image: zihuanxue/html-rendering:latest

@@ -6,4 +6,4 @@ functions:
   bfs:
     lang: criu-pypy
     handler: ./python/bfs
-    image: pronghornae/bfs:latest
+    image: zihuanxue/bfs:latest

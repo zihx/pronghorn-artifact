@@ -6,4 +6,4 @@ functions:
   matrix-multiplication:
     lang: criu-java-8
     handler: ./java/matrix-multiplication
-    image: pronghornae/matrix-multiplication:latest
+    image: zihuanxue/matrix-multiplication:latest
